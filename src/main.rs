@@ -7,19 +7,13 @@ use minigrep::Config;
 fn main() {
     let args:Vec<String> = env::args().collect();
     
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("Probleme rencontre lors de l'interpretation des arguments : {}" , err);
+    let config = Config::new(&args).unwrap_or_else(|_err| {
         process::exit(1);
     });
 
 
 
-    println!("we are looking for : {}", config.search);
-    println!("file name : {}",config.file_name);
-
-
-   if let Err(e) = minigrep::run(config) {
-        println!("Erreur applicative : {}" , e);
+   if let Err(_e) = minigrep::run(config) {
         process::exit(1);
    }; 
 }
