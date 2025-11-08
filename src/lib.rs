@@ -1,10 +1,11 @@
 use std::fs;
 use std::error::Error;
-
+use std::env;
 
 pub struct Config {
     pub query : String,
     pub file_name : String,
+    pub case_sensitive : bool,
 }
 
 impl Config {
@@ -18,8 +19,14 @@ impl Config {
         let query = args[1].clone();
         let file_name = args[2].clone();
         
+        let case_sensitive = env::var("MINIGREP_INSENSITIVE_CASE").is_err();
         
-        Ok( Config { query , file_name } )
+        Ok(Config { 
+            query , 
+            file_name ,
+            case_sensitive ,
+        } )
+
     }
 
 
@@ -29,9 +36,20 @@ pub fn run(config : Config) -> Result<() , Box<dyn Error>> {
 
     let content = fs::read_to_string(config.file_name)?;
 
-    for line in search(&config.query , &content) {
+    let results = if config.case_sensitive {
+       
+        println!("using sensitive case");
+        search(&config.query , &content)
+    }else {
+        println!("using insensitve case");
+        search_case_insensitive(&config.query , &content)
+    };
+
+
+    for line in results {
         println!("{}" , line);
     }
+
     Ok(())
 }
 
@@ -56,7 +74,7 @@ pub fn search_case_insensitive<'a>(query : &str ,content:&'a str ) -> Vec<&'a st
     let mut result  = Vec::new();
 
     for line in content.lines() {
-        if line.contains(&query){
+        if line.to_lowercase().contains(&query){
             result.push(line);
 
         }
@@ -91,12 +109,11 @@ Duck tape.";
     fn case_insensitive(){
 
         let query = "rUst";
-        let centent = "/
+        let centent = "\
 Rust : 
 safety, speed, productivity.
 Get all three at the same time.
 It's not rustic.";
-
 
         assert_eq!(
             vec!["Rust:" , "It's not rustic."],
