@@ -1,2 +1,2 @@
 # minigrep
-this is actually mini version of the grep linux command ;')
+this is actually a mini simple version of the grep linux command using Rust ;')
